@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mealtimer/pages/home.dart';
 import 'package:mealtimer/pages/info.dart';
+import 'package:mealtimer/pages/new_preset.dart';
 import 'package:mealtimer/pages/share.dart';
 
 void main() => runApp(MaterialApp(
-      home: MainPage(),
+      initialRoute: "/",
+      routes: {
+        "/": (context) => MainPage(),
+        "/newPreset": (context) => NewPreset()
+      },
     ));
 
 class MainPage extends StatefulWidget {
@@ -28,10 +33,10 @@ class _MainPageState extends State<MainPage> {
       body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        iconSize: 30,
         selectedItemColor: Color(0xff69BF41),
         unselectedItemColor: Color(0xff3D5938),
         backgroundColor: Color(0xff1A3540),
+        iconSize: 30,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.share),

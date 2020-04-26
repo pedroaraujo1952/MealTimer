@@ -29,7 +29,7 @@ class Info extends StatelessWidget {
                                 TextStyle(fontSize: 16, color: Colors.white)),
                         Text(
                           "Pedro Araújo",
-                          style: TextStyle(fontSize: 27, color: Colors.white),
+                          style: TextStyle(fontSize: 22, color: Colors.white),
                         )
                       ],
                     )
@@ -39,40 +39,60 @@ class Info extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: 35,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (MediaQuery.of(context).size.width > 380) {
+                return SizedBox(
+                  height: 35,
+                );
+              } else
+                return SizedBox(
+                  height: 25,
+                );
+            },
           ),
           Center(
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 25.0),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                   color: Color(0xff1A3540),
                   borderRadius: BorderRadius.all(Radius.circular(27.0))),
-              child: Padding(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(50.0, 30.0, 50.0, 10.0),
-                      child: Image(
-                        image: AssetImage("assets/food.jpg"),
-                      ),
-                    ),
-                    Text(
-                      "©2020-2021 Copyright",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    )
-                  ],
-                ),
-                padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Image(
+                    width: 170,
+                    height: 100,
+                    image: AssetImage("assets/food.jpg"),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "©2020-2021 Copyright",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  )
+                ],
               ),
             ),
           ),
-          SizedBox(
-            height: 35,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (MediaQuery.of(context).size.width > 380) {
+                return SizedBox(
+                  height: 35,
+                );
+              } else
+                return SizedBox(
+                  height: 25,
+                );
+            },
           ),
           Center(
             child: Container(
