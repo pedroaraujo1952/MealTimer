@@ -361,7 +361,7 @@ class _NewPresetState extends State<NewPreset> {
 
               List<TimeOfDay> timeofdays =
                   TimeMath.calculateTime(_wakeUpTime, _sleepTime, _mealNumber);
-              List<String> times = [];
+              List<String> times = ["0"];
 
               for (TimeOfDay time in timeofdays) {
                 String period = time.periodOffset == 0 ? " AM" : " PM";
