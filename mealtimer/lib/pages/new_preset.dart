@@ -22,9 +22,10 @@ class _NewPresetState extends State<NewPreset> {
   Future<TimeOfDay> selectTime(BuildContext context) async {
     picked = await showTimePicker(context: context, initialTime: _time);
 
+    print(picked);
+
     setState(() {
-      _time = picked;
-      print(_time.format(context));
+      _time = picked != null ? picked : _time;
     });
 
     return _time;
@@ -115,6 +116,7 @@ class _NewPresetState extends State<NewPreset> {
                 margin: EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(27),
+                    border: Border.all(color: Color(0xff1A3540), width: 0),
                     image: DecorationImage(
                         image: AssetImage("assets/food.jpg"),
                         fit: BoxFit.cover)),
@@ -140,9 +142,6 @@ class _NewPresetState extends State<NewPreset> {
                                 color: Color(0xffD2F28D), fontSize: 23),
                             decoration: InputDecoration(
                                 counterText: "",
-                                hintText: "NEW PRESET NAME",
-                                hintStyle: TextStyle(
-                                    height: 1.5, color: Color(0xffD2F28D)),
                                 labelText: "New Preset",
                                 labelStyle: TextStyle(
                                     fontSize: 16, color: Color(0xff69BF41)),
@@ -188,26 +187,33 @@ class _NewPresetState extends State<NewPreset> {
                           Container(
                               height: 42,
                               width: 120,
-                              child: FlatButton(
-                                onPressed: () async {
-                                  TimeOfDay time = await selectTime(context);
-                                  setState(() {
-                                    _wakeUpTime = time;
-                                  });
-                                  print(_wakeUpTime);
-                                },
-                                color: Color(0xffD2F28D),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(_wakeUpTime.format(context)),
-                                    Icon(Icons.timer)
-                                  ],
+                              child: Theme(
+                                data: Theme.of(context)
+                                    .copyWith(primaryColor: Color(0xff121726)),
+                                child: Builder(
+                                  builder: (context) => FlatButton(
+                                    onPressed: () async {
+                                      TimeOfDay time =
+                                          await selectTime(context);
+                                      setState(() {
+                                        _wakeUpTime = time;
+                                      });
+                                      print(_wakeUpTime);
+                                    },
+                                    color: Color(0xffD2F28D),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10.0)),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Text(_wakeUpTime.format(context)),
+                                        Icon(Icons.timer)
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               )),
                         ],
@@ -222,30 +228,39 @@ class _NewPresetState extends State<NewPreset> {
                             height: 5,
                           ),
                           Container(
-                              height: 42,
-                              width: 120,
-                              child: FlatButton(
-                                onPressed: () async {
-                                  TimeOfDay time = await selectTime(context);
-                                  setState(() {
-                                    _sleepTime = time;
-                                  });
-                                  print(_sleepTime);
-                                },
-                                color: Color(0xffD2F28D),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
+                            height: 42,
+                            width: 120,
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                primaryColor: Color(0xff121726),
+                                accentColor: Color(0xff121726),
+                              ),
+                              child: Builder(
+                                builder: (context) => FlatButton(
+                                  onPressed: () async {
+                                    TimeOfDay time = await selectTime(context);
+                                    setState(() {
+                                      _sleepTime = time;
+                                    });
+                                    print(_sleepTime);
+                                  },
+                                  color: Color(0xffD2F28D),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10.0)),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text(_sleepTime.format(context)),
+                                      Icon(Icons.timer)
+                                    ],
+                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(_sleepTime.format(context)),
-                                    Icon(Icons.timer)
-                                  ],
-                                ),
-                              )),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -380,7 +395,8 @@ class _NewPresetState extends State<NewPreset> {
               color: Color(0xff3D5938),
               size: 35,
             ),
-            backgroundColor: Color(0xffD2F28D),
+            backgroundColor: Color(0xff69BF41),
+            tooltip: "Save",
           ),
         ),
       ),

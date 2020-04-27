@@ -4,7 +4,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _nameTag = "name";
-const _activeIndexTag = "activeindex";
+const _activeStatusTag = "activestatus";
 const _mealNumberTag = "mealnumber";
 const _mealNamesTag = "mealnames";
 const _mealTimesTag = "mealtimes";
@@ -16,18 +16,18 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-int foodEatenCount = 0;
-int totalFoodCount = 0;
-double foodEatenPercent = (foodEatenCount / totalFoodCount).isNaN
-    ? 0.01
-    : foodEatenCount / totalFoodCount;
-
-List<Widget> presets = [];
-int presetLength = 0;
-
-int _activeIndex;
-
 class _HomeState extends State<Home> {
+  bool _active;
+  String _name;
+  int _mealNumber;
+  List<String> _mealNames, _mealTimes;
+  Function _eatFunction, _resetFunction, _activateFunction;
+
+  int foodEatenCount = 0;
+  int totalFoodCount = 0;
+  double foodEatenPercent = 0.01;
+
+  //InitState
   @override
   void initState() {
     getPresets().then((_) {
@@ -54,6 +54,31 @@ class _HomeState extends State<Home> {
     saveFoodEatenCount(foodEatenCount);
   }
 
+  void resetFoodCounters() {
+    setState(() {
+      foodEatenCount = 0;
+      totalFoodCount = 0;
+      foodEatenPercent = 0.01;
+    });
+
+    saveFoodEatenCount(foodEatenCount);
+    saveActiveStatus(false);
+  }
+
+  void activate(int _totalFoodCount) {
+    int _foodEatenCount = 0;
+    double _foodEatenPercent = _foodEatenCount / _totalFoodCount;
+
+    setState(() {
+      foodEatenCount = _foodEatenCount;
+      totalFoodCount = _totalFoodCount;
+      foodEatenPercent = _foodEatenPercent == 0 ? 0.01 : _foodEatenPercent;
+    });
+
+    saveFoodEatenCount(foodEatenCount);
+    saveActiveStatus(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -77,16 +102,16 @@ class _HomeState extends State<Home> {
                 ),
                 CircularPercentIndicator(
                   radius: 135,
-                  lineWidth: 10,
+                  lineWidth: 13,
                   percent: foodEatenPercent,
                   animation: true,
                   center: Image(
                     image: AssetImage("assets/stick.png"),
-                    height: 86,
-                    width: 40,
+                    height: 76,
+                    width: 30,
                   ),
                   progressColor: Color(0xff69BF41),
-                  backgroundColor: Color(0xff1A3540),
+                  backgroundColor: Color(0xff12262E),
                   circularStrokeCap: CircularStrokeCap.round,
                 ),
                 SizedBox(
@@ -130,8 +155,22 @@ class _HomeState extends State<Home> {
           SizedBox(
             height: 50,
           ),
-          Column(
-            children: presets,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (_name != null)
+                return Preset(
+                  active: _active,
+                  name: _name,
+                  mealNumber: _mealNumber,
+                  mealNames: _mealNames,
+                  mealTimes: _mealTimes,
+                  eat: _eatFunction,
+                  reset: _resetFunction,
+                  activate: _activateFunction,
+                );
+              else
+                return Container();
+            },
           ),
           Column(
             children: <Widget>[
@@ -142,31 +181,23 @@ class _HomeState extends State<Home> {
                     dynamic response =
                         await Navigator.pushNamed(context, "/newPreset");
 
-                    for (Preset preset in presets) {
-                      preset.changeActiveState();
-                    }
-
                     setState(() {
-                      presets.add(Preset(
-                        active: true,
-                        name: response['name'],
-                        mealNumber: response['mealNumber'],
-                        mealNames: response['mealNames'],
-                        mealTimes: response['mealTimes'],
-                        function: eatMeal,
-                      ));
+                      _active = true;
+                      _name = response['name'];
+                      _mealNumber = response['mealNumber'];
+                      _mealNames = response['mealNames'];
+                      _mealTimes = response['mealTimes'];
+                      _eatFunction = eatMeal;
+                      _resetFunction = resetFoodCounters;
+                      _activateFunction = activate;
+
                       foodEatenCount = 0;
                       totalFoodCount = response['mealNumber'];
-                      _activeIndex = presetLength;
-                      presetLength += 1;
+                      foodEatenPercent = 0.01;
                     });
 
-                    savePreset(
-                        _activeIndex,
-                        response['name'],
-                        response['mealNumber'],
-                        response['mealNames'],
-                        response['mealTimes']);
+                    savePreset(response['name'], response['mealNumber'],
+                        response['mealNames'], response['mealTimes']);
 
                     saveFoodEatenCount(foodEatenCount);
                   },
@@ -188,7 +219,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 10,
               )
             ],
           )
@@ -198,17 +229,13 @@ class _HomeState extends State<Home> {
   }
 
   //Save Preset
-  Future<bool> savePreset(int activeIndex, String name, int mealNumber,
-      List<String> mealNames, List<String> mealTimes) async {
+  Future<bool> savePreset(String name, int mealNumber, List<String> mealNames,
+      List<String> mealTimes) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setInt(_activeIndexTag, activeIndex);
-    await preferences.setString(_nameTag + presetLength.toString(), name);
-    await preferences.setInt(
-        _mealNumberTag + presetLength.toString(), mealNumber);
-    await preferences.setStringList(
-        _mealNamesTag + presetLength.toString(), mealNames);
-    await preferences.setStringList(
-        _mealTimesTag + presetLength.toString(), mealTimes);
+    await preferences.setString(_nameTag, name);
+    await preferences.setInt(_mealNumberTag, mealNumber);
+    await preferences.setStringList(_mealNamesTag, mealNames);
+    await preferences.setStringList(_mealTimesTag, mealTimes);
     return true;
   }
 
@@ -216,34 +243,24 @@ class _HomeState extends State<Home> {
   Future<void> getPresets() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
-    int activeIndex = preferences.getInt(_activeIndexTag);
+    String name = preferences.getString(_nameTag);
+    int mealNumber = preferences.getInt(_mealNumberTag);
+    List<String> mealNames = preferences.getStringList(_mealNamesTag);
+    List<String> mealTimes = preferences.getStringList(_mealTimesTag);
 
-    var i = 1;
-    while (preferences.getString(_nameTag + i.toString()) != null) {
-      String name = preferences.getString(_nameTag + i.toString());
-      int mealNumber = preferences.getInt(_mealNumberTag + i.toString());
-      List<String> mealNames =
-          preferences.getStringList(_mealNamesTag + i.toString());
-      List<String> mealTimes =
-          preferences.getStringList(_mealTimesTag + i.toString());
+    bool isActive = await getActiveStatus();
 
-      setState(() {
-        _activeIndex = activeIndex;
-
-        presets.add(Preset(
-          active: presets.length == activeIndex ? true : false,
-          name: name,
-          mealNumber: mealNumber,
-          mealNames: mealNames,
-          mealTimes: mealTimes,
-          function: eatMeal,
-        ));
-        totalFoodCount =
-            presets.length == activeIndex ? mealNumber : totalFoodCount;
-        presetLength += 1;
-      });
-      i++;
-    }
+    setState(() {
+      _active = isActive;
+      _name = name;
+      _mealNumber = mealNumber;
+      _mealNames = mealNames;
+      _mealTimes = mealTimes;
+      _eatFunction = eatMeal;
+      _resetFunction = resetFoodCounters;
+      _activateFunction = activate;
+      totalFoodCount = mealNumber;
+    });
   }
 
   Future<bool> saveFoodEatenCount(int food) async {
@@ -255,5 +272,16 @@ class _HomeState extends State<Home> {
   Future<int> getFoodEatenCount() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getInt(_foodEatenCountTag);
+  }
+
+  Future<bool> saveActiveStatus(bool value) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_activeStatusTag, value);
+    return true;
+  }
+
+  Future<bool> getActiveStatus() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getBool(_activeStatusTag);
   }
 }

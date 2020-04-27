@@ -5,6 +5,7 @@ import 'package:mealtimer/pages/new_preset.dart';
 import 'package:mealtimer/pages/share.dart';
 
 void main() => runApp(MaterialApp(
+      title: "MealTimer",
       initialRoute: "/",
       routes: {
         "/": (context) => MainPage(),
@@ -26,6 +27,11 @@ List<Widget> pages = [
 ];
 
 class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
